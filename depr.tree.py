@@ -48,6 +48,38 @@ def oppositeSide(key):
     else:
         return '1'
 
+def crackSideFit(cards, a, b, aOffset, bOffset, xOffset, finalOffset, searchHit):
+    testCardX = cards[a[0]]
+    sideTestX = testCardX[convert(a[1]-aOffset)]
+    keyX = sideTestX[0] + oppositeSide(sideTestX[1])
+    possibleCardsX = sideHash[keyX]
+    weeded = []
+    for x in possibleCardsX:
+        if not x[0] in searchHit:
+            testCardY = cards[x[0]]
+            sideTestY = testCardY[convert(x[1]-1)]
+            keyY = sideTestY[0] + oppositeSide(sideTestY[1])
+            possibleCardsY = sideHash[keyY]
+            # Find other set
+            testCardOtherY = cards[b[0]]
+            sideTestOtherY = testCardOtherY[convert(b[1] + bOffset)]
+            keyOtherY = sideTestOtherY[0] + oppositeSide(sideTestOtherY[1])
+            possibleCardsOtherY = sideHash[keyOtherY]
+            for h in possibleCardsY:
+                tempSearch = searchHit + [x[0]]
+                if not h[0] in tempSearch:
+                    for k in possibleCardsOtherY:
+                        if h[1] == 3:
+                            h[1] = -1
+                        if h[0] == k[0] and k[1] == (h[1]+xOffset):
+                            weeded += [h]
+            if 3 == a[0] and 2 == b[0] and 7 == z[0]:
+                doNothing = True
+    if len(weeded) > 0:
+        return True
+    else:
+        return False
+
 # Try cornerstone as the edge piece
 # 1. Find the possible 2x2s
 loops = 0
@@ -104,10 +136,34 @@ for i in four:
                                     ]]
                                     # Now test, right, bottom, left, top
                                     # right
+                                    totalWorkit = 0
+                                    # Right
+                                    if crackSideFit(cards, a, b, -2, 1, -1, 2, [0, a[0], b[0], z[0]]):
+                                        totalWorkit += 1
+                                    # Top
+                                    if crackSideFit(cards, [0, i], a, -1, 1, -1, 1, [0, a[0], b[0], z[0]]):
+                                        totalWorkit += 1
+                                    # Left
+                                    if crackSideFit(cards, z, [0, i], -2, -2, -1, 1, [0, a[0], b[0], z[0]]):
+                                        totalWorkit += 1
+                                    # Bottom
+                                    if crackSideFit(cards, b, z, -2, 1, -1, 1, [0, a[0], b[0], z[0]]):
+                                        totalWorkit += 1
+                                    if totalWorkit > 1:
+                                        weededWorkingFour += [[
+                                            [0, i],
+                                            [a[0], a[1]],
+                                            [b[0], b[1]],
+                                            [z[0], z[1]]
+                                        ]]
+                                        print('Weeding one!')
+                                    
+                                    '''
                                     testCardX = cards[a[0]]
                                     sideTestX = testCardX[convert(a[1]-2)]
                                     keyX = sideTestX[0] + oppositeSide(sideTestX[1])
                                     possibleCardsX = sideHash[keyX]
+                                    weeded = []
                                     for x in possibleCardsX:
                                         if not x[0] in [0, a[0], b[0], z[0]]:
                                             testCardY = cards[x[0]]
@@ -119,32 +175,28 @@ for i in four:
                                             sideTestOtherY = testCardOtherY[convert(b[1] + 1)]
                                             keyOtherY = sideTestOtherY[0] + oppositeSide(sideTestOtherY[1])
                                             possibleCardsOtherY = sideHash[keyOtherY]
-                                            weeded = []
                                             for h in possibleCardsY:
                                                 if not h[0] in [0, a[0], b[0], z[0], x[0]]:
                                                     for k in possibleCardsOtherY:
                                                         if h[1] == 3:
                                                             h[1] = -1
                                                         if h[0] == k[0] and k[1] == (h[1]+2):
-                                                            if 3 == a[0] and 2 == b[0] and 7 == z[0]:
-                                                            weededWorkingFour += [[
-                                                                [0, i],
-                                                                [a[0], a[1]],
-                                                                [b[0], b[1]],
-                                                                [z[0], z[1]]
-                                                            ]]
+                                                            if not(3 == a[0] and 2 == b[0] and 7 == z[0]):
+                                                                print('Weed!')
+                                                                print()
                                                             weeded += [h]
                                             if 3 == a[0] and 2 == b[0] and 7 == z[0]:
                                                 doNothing = True
-                                            if len(weeded) > 0:
-                                                print('Weeded!')
-                                            if len(weeded) > 0:
-                                                weededWorkingFour += [[
-                                                    [0, i],
-                                                    [a[0], a[1]],
-                                                    [b[0], b[1]],
-                                                    [z[0], z[1]]
-                                                ]]
+                                    if len(weeded) > 0:
+                                        print('Weeded!')
+                                    if len(weeded) > 0:
+                                        weededWorkingFour += [[
+                                            [0, i],
+                                            [a[0], a[1]],
+                                            [b[0], b[1]],
+                                            [z[0], z[1]]
+                                        ]]
+                                    '''
 
 for i in weededWorkingFour:
     print(i)
